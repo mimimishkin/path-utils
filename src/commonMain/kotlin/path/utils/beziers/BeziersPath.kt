@@ -1,9 +1,6 @@
 package path.utils.beziers
 
-import path.utils.math.MatrixTransform
-import path.utils.math.Vec2
-import path.utils.math.distToSegmentSq
-import path.utils.math.isOdd
+import path.utils.math.*
 import path.utils.paths.*
 import path.utils.paths.Command.*
 
@@ -69,7 +66,7 @@ class BeziersPath(val beziers: List<Bezier>, val isCalm: Boolean = false) {
             // t values where curve change direction
             val roots = bezier.dyPoly.roots + listOf(0.0, 1.0)
             // We split curves to observe them as lines
-            roots.filterBezier().distinct().sorted().zipWithNext {
+            roots.filterBezier().veryDistinct().sorted().zipWithNext {
                     t1, t2 -> bezier.sub(t1, t2)
             }
         }
@@ -97,10 +94,10 @@ class BeziersPath(val beziers: List<Bezier>, val isCalm: Boolean = false) {
             //              *           of curve
             //             *
 
-            val interval = listOf(bezier.start.y, bezier.end.y).run { min()..max() }
+            val (minY, maxY) = listOf(bezier.start.y, bezier.end.y).run { min() to max() }
             val (minX, maxX) = bezier.map { it.x }.run { min() to max() }
             fun x4y(y: Double) = bezier.x(bezier.paramsAtY(y).single())
-            if (y in interval && (x < minX || x < maxX && x < x4y(y)))
+            if (y >= minY && y < maxY && (x < minX || x < maxX && x < x4y(y)))
                 crossings += 1
         }
 

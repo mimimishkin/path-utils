@@ -1,9 +1,10 @@
 plugins {
     kotlin("multiplatform") version "1.7.20"
+    `maven-publish`
 }
 
-group = "org.example"
-version = "1.0-SNAPSHOT"
+group = "my.utilities"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
@@ -30,5 +31,17 @@ kotlin {
         }
         val jvmMain by getting
         val jvmTest by getting
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = project.group.toString()
+            artifactId = project.name
+            version = project.version.toString()
+
+            from(components["kotlin"])
+        }
     }
 }
