@@ -481,71 +481,6 @@ open class Bezier(val points: List<Vec2>) : Cloneable {
     fun pointAtLengthPercent(u: Double) = point(paramAtLengthPercent(u))
 
     fun lengthAt(t: Double) = (parameterization ?: needParam()).lengthForParam(t)
-
-//    fun coincidentIntervals(other: Bezier): List<Pair<DoubleRange, DoubleRange>> {
-//        if (!(bounds overlap other.bounds))
-//            return emptyList()
-//
-//        parameterizeWithArcLength(1e-3)
-//        other.parameterizeWithArcLength(1e-3)
-//        val flat1 = flatLength()
-//        val flat2 = other.flatLength()
-//        val scale = max(flat1, flat2)
-//        val uMin = max(scale * 1E-14, 1E-300)
-//        val uMax = max(uMin * 1E13, abs(flat1 - flat2) * 0.1)
-//
-//        fun findLength(start: Double, predicate: (length: Double) -> Boolean): Double {
-//            var step = uMin
-//            var length = start
-//
-//            out@ while (length <= flat1) {
-//                if (predicate(length)) {
-//                    step = min(step * 2, uMax)
-//                } else {
-//                    length -= step
-//                    if (length < 0.0) return 0.0
-//
-//                    while (true) {
-//                        step /= 2
-//                        val newLength = length + step
-//                        if (newLength <= length)
-//                            break@out
-//                        if (predicate(newLength))
-//                            length = newLength
-//                    }
-//                }
-//
-//                length += step
-//            }
-//
-//            return length
-//        }
-//        var current = 0.0
-//        var isOn = false
-//        val bounds = mutableListOf<Double>()
-//        while (current < flat1) {
-//            val new = findLength(current) { pointAtLength(it) liesOn other == isOn }
-//            bounds += new.coerceAtMost(flat1)
-//
-//            current = new + uMin
-//            isOn = !isOn
-//        }
-//
-//        if (bounds.size.isOdd) bounds.removeLast()
-//        return bounds.asSequence()
-//            .chunked(2) { paramAtLength(it[0]) to paramAtLength(it[1]) }
-//            .mapNotNull { (t1, t2) ->
-//                if (t1 near t2) return@mapNotNull null
-//
-//                val s1 = other.paramNear(point(t1))!!
-//                val s2 = other.paramNear(point(t2))!!
-//
-//                if (s1 near s2) return@mapNotNull null
-//
-//                return@mapNotNull t1..t2 to s1..s2
-//            }
-//            .toList().also { println("bounds = $bounds, tBounds = $it, length = $flat1") }
-//    }
 }
 
 private class ReversedBezier(private val source: Bezier) : Bezier(source.points.asReversed()) {
@@ -569,6 +504,12 @@ inline val Bezier.isEmpty get() = order <= 0
 inline val Bezier.isLine get() = order == 1
 
 inline val Bezier.isCurve get() = order > 1
+
+internal val Bezier.isQuad get() = order == 2
+
+internal val Bezier.isCubic get() = order == 3
+
+internal val Bezier.isComplex get() = order > 3
 
 infix fun Vec2.liesOn(bezier: Bezier) = when {
     bezier.isEmpty -> false

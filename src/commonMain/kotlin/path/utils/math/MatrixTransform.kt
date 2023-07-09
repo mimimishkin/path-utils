@@ -54,9 +54,9 @@ object Transforms {
         val ly2 = ly * ly
         val lSq = lx2 + ly2
         val reflect = matrix(
-            (lx2 - ly2) / lSq, (2 * lx * ly) / lSq, 0.0,
-            (2 * lx * ly) / lSq, (ly2 - lx2) / lSq, 0.0,
-            0.0, 0.0, 1.0,
+            (lx2 - ly2) / lSq,   (2 * lx * ly) / lSq, 0.0,
+            (2 * lx * ly) / lSq, (ly2 - lx2) / lSq,   0.0,
+            0.0,                 0.0,                 1.0,
         )
 
         if (l1 != Vec2()) {
@@ -118,63 +118,65 @@ object Transforms {
         return rotate
     }
 
-    enum class AspectRatio(internal val slice: Boolean) {
-        XMinYMinMeet(false),
-        XMidYMinMeet(false),
-        XMaxYMinMeet(false),
+    enum class AspectRatio(
+        internal val x: Boolean?,
+        internal val y: Boolean?, // false - min, null - mid, true - max
+        internal val slice: Boolean,
+    ) {
+        XMinYMinMeet(false, false, false),
+        XMidYMinMeet(null, false, false),
+        XMaxYMinMeet(true, false, false),
 
-        XMinYMidMeet(false),
-        XMidYMidMeet(false),
-        XMaxYMidMeet(false),
+        XMinYMidMeet(false, null, false),
+        XMidYMidMeet(null, null, false),
+        XMaxYMidMeet(true, null, false),
 
-        XMinYMaxMeet(false),
-        XMidYMaxMeet(false),
-        XMaxYMaxMeet(false),
+        XMinYMaxMeet(false, true, false),
+        XMidYMaxMeet(null, true, false),
+        XMaxYMaxMeet(true, true, false),
 
-        XMinYMinSlice(true),
-        XMidYMinSlice(true),
-        XMaxYMinSlice(true),
+        XMinYMinSlice(false, false, true),
+        XMidYMinSlice(null, false, true),
+        XMaxYMinSlice(true, false, true),
 
-        XMinYMidSlice(true),
-        XMidYMidSlice(true),
-        XMaxYMidSlice(true),
+        XMinYMidSlice(false, null, true),
+        XMidYMidSlice(null, null, true),
+        XMaxYMidSlice(true, null, true),
 
-        XMinYMaxSlice(true),
-        XMidYMaxSlice(true),
-        XMaxYMaxSlice(true),
+        XMinYMaxSlice(false, true, true),
+        XMidYMaxSlice(null, true, true),
+        XMaxYMaxSlice(true, true, true),
 
-        None(false)
+        None(false, false, false)
     }
 
     fun rectToRect(a: Bounds, b: Bounds, aspectRatio: AspectRatio = None): MatrixTransform {
-        val m = if (!aspectRatio.slice) min(b.w, b.h) else max(b.w, b.h)
-        val (w, h) = (a.w / a.h) * m to m
-        return when (aspectRatio) {
-            XMinYMinMeet, XMinYMinSlice -> { rectToRect(a, Bounds(b.x, b.y, w, h)) }
-            XMidYMinMeet, XMidYMinSlice -> { rectToRect(a, Bounds(b.x + (b.w - w) / 2, b.y, w, h)) }
-            XMaxYMinMeet, XMaxYMinSlice -> { rectToRect(a, Bounds(b.right - w, b.y, w, h)) }
+        if (aspectRatio == None) {
+            val sx = b.w / a.w
+            val sy = b.h / a.h
+            val tx = b.x - a.x * sx
+            val ty = b.y - a.y * sy
 
-            XMinYMidMeet, XMinYMidSlice -> { rectToRect(a, Bounds(b.x, b.y + (b.h - h) / 2, w, h)) }
-            XMidYMidMeet, XMidYMidSlice -> { rectToRect(a, Bounds(b.x + (b.w - w) / 2, b.y + (b.h - h) / 2, w, h)) }
-            XMaxYMidMeet, XMaxYMidSlice -> { rectToRect(a, Bounds(b.right - w, b.y + (b.h - h) / 2, w, h)) }
-
-            XMinYMaxMeet, XMinYMaxSlice -> { rectToRect(a, Bounds(b.x, b.bottom - h, w, h)) }
-            XMidYMaxMeet, XMidYMaxSlice -> { rectToRect(a, Bounds(b.x + (b.w - w) / 2, b.bottom - h, w, h)) }
-            XMaxYMaxMeet, XMaxYMaxSlice -> { rectToRect(a, Bounds(b.right - w, b.bottom - h, w, h)) }
-
-            None -> {
-                val sx = b.w / a.w
-                val sy = b.h / a.h
-                val tx = b.x - a.x * sx
-                val ty = b.y - a.y * sy
-
-                matrix(
-                    sx, 0.0, tx,
-                    0.0, sy, ty,
-                    0.0, 0.0, 1.0,
-                )
-            }
+            return matrix(
+                sx, 0.0, tx,
+                0.0, sy, ty,
+                0.0, 0.0, 1.0,
+            )
         }
+
+        val h = if (!aspectRatio.slice) min(b.w, b.h) else max(b.w, b.h)
+        val w = (a.w / a.h) * h
+        val x = when (aspectRatio.x) {
+            false -> b.x
+            null -> b.x + (b.w - w) / 2
+            true -> b.right - w
+        }
+        val y = when (aspectRatio.y) {
+            false -> b.y
+            null -> b.y + (b.h - h) / 2
+            true -> b.bottom - h
+        }
+        return rectToRect(a, Bounds(x, y, w, h))
     }
 
     fun polyToPoly(a: List<Vec2>, b: List<Vec2>): MatrixTransform? {
@@ -284,9 +286,9 @@ object Transforms {
     }
 
     fun matrix(
-        m00: Double, m01: Double, m02: Double,
-        m10: Double, m11: Double, m12: Double,
-        m20: Double, m21: Double, m22: Double,
+        m00: Double = 1.0, m01: Double = 0.0, m02: Double = 0.0,
+        m10: Double = 0.0, m11: Double = 1.0, m12: Double = 0.0,
+        m20: Double = 0.0, m21: Double = 0.0, m22: Double = 1.0,
     ) = MatrixTransform(
         m00, m01, m02,
         m10, m11, m12,
@@ -314,33 +316,33 @@ class MatrixTransform(vararg matrix: Double) {
     var matrix: Matrix3
         private set
 
-    var m00: Double
-        get() = matrix[0, 0]
-        set(v) { matrix[0, 0] = v }
-    var m01: Double
-        get() = matrix[0, 1]
-        set(v) { matrix[0, 1] = v }
-    var m02: Double
-        get() = matrix[0, 2]
-        set(v) { matrix[0, 2] = v }
-    var m10: Double
-        get() = matrix[1, 0]
-        set(v) { matrix[1, 0] = v }
-    var m11: Double
-        get() = matrix[1, 1]
-        set(v) { matrix[1, 1] = v }
-    var m12: Double
-        get() = matrix[1, 2]
-        set(v) { matrix[1, 2] = v }
-    var m20: Double
-        get() = matrix[2, 0]
-        set(v) { matrix[2, 0] = v }
-    var m21: Double
-        get() = matrix[2, 1]
-        set(v) { matrix[2, 1] = v }
-    var m22: Double
-        get() = matrix[2, 2]
-        set(v) { matrix[2, 2] = v }
+    inline var m00: Double
+        get() = matrix[0]
+        set(v) { matrix[0] = v }
+    inline var m01: Double
+        get() = matrix[1]
+        set(v) { matrix[1] = v }
+    inline var m02: Double
+        get() = matrix[2]
+        set(v) { matrix[2] = v }
+    inline var m10: Double
+        get() = matrix[3]
+        set(v) { matrix[3] = v }
+    inline var m11: Double
+        get() = matrix[4]
+        set(v) { matrix[4] = v }
+    inline var m12: Double
+        get() = matrix[5]
+        set(v) { matrix[5] = v }
+    inline var m20: Double
+        get() = matrix[6]
+        set(v) { matrix[6] = v }
+    inline var m21: Double
+        get() = matrix[7]
+        set(v) { matrix[7] = v }
+    inline var m22: Double
+        get() = matrix[8]
+        set(v) { matrix[8] = v }
 
     init {
         if (matrix.size != 9)
@@ -427,14 +429,14 @@ class MatrixTransform(vararg matrix: Double) {
         return new
     }
 
-    inline fun transform(point: Vec2): Vec2 {
+    fun transform(points: Iterable<Vec2>) = points.map { transform(it) }
+
+    fun transform(point: Vec2): Vec2 {
         val x = m00 * point.x + m01 * point.y + m02
         val y = m10 * point.x + m11 * point.y + m12
         val z = m20 * point.x + m21 * point.y + m22
         return Vec2(x / z, y / z)
     }
-
-    fun transform(points: Iterable<Vec2>) = points.map { transform(it) }
 
     fun invert() = Transforms.inverted(m00, m01, m02, m10, m11, m12, m20, m21, m22)
 

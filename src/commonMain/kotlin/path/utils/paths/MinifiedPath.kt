@@ -4,7 +4,7 @@ import path.utils.beziers.Bezier
 import path.utils.beziers.toBezier
 import path.utils.beziers.toCommand
 import path.utils.math.Vec2
-import path.utils.math.orNull
+import path.utils.math.orZero
 import path.utils.paths.Command.*
 
 fun Path.minify(): Path {
@@ -15,7 +15,7 @@ fun Path.minify(): Path {
     var anchor: Vec2? = null
 
     fun placeMove(from: Vec2, move: Vec2) {
-        val moveTo = MoveTo(from).minify(last.orNull(), null, move)
+        val moveTo = MoveTo(from).minify(last.orZero(), null, move)
         if (moveTo != null) path.append(moveTo)
     }
 
@@ -35,7 +35,7 @@ fun Path.minify(): Path {
 
     val (_, _, move) = iteratePathFull { c, from, anc, move ->
         fun doAppend(new: Bezier?) {
-            if (current != null) doAppend(move.orNull())
+            if (current != null) doAppend(move.orZero())
             current = new
         }
 
@@ -43,14 +43,14 @@ fun Path.minify(): Path {
             c.isMove -> doAppend(null)
 
             c.isArc -> {
-                val minified = c.minify(from.orNull(), null, move.orNull())
+                val minified = c.minify(from.orZero(), null, move.orZero())
                 if (minified != null) {
                     doAppend(null)
-                    placeMove(from.orNull(), move.orNull())
+                    placeMove(from.orZero(), move.orZero())
                     path.append(minified)
 
                     last = if (minified is ArcToRelative) {
-                        minified.dp + last.orNull()
+                        minified.dp + last.orZero()
                     } else {
                         (minified as ArcTo).p
                     }
@@ -58,8 +58,8 @@ fun Path.minify(): Path {
             }
 
             else -> {
-                val simple = c.simplify(from.orNull(), anc).single()
-                val bezier = simple.closeToLine(move.orNull()).toBezier(from.orNull())
+                val simple = c.simplify(from.orZero(), anc).single()
+                val bezier = simple.closeToLine(move.orZero()).toBezier(from.orZero())
 
                 val merged = current?.let { Bezier.tryMerge(it, bezier) }
                 if (merged != null) current = merged
@@ -69,7 +69,7 @@ fun Path.minify(): Path {
     }
 
     if (current != null) // if path wasn't empty we have Bézier curve that haven't been appended to path yet
-        doAppend(move.orNull())
+        doAppend(move.orZero())
 
     return path
 }

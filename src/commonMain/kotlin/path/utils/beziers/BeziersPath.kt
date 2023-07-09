@@ -144,12 +144,6 @@ fun Path.toBeziers(): BeziersPath {
     return BeziersPath(beziers)
 }
 
-internal val Bezier.isQuad get() = order == 2
-
-internal val Bezier.isCubic get() = order == 3
-
-internal val Bezier.isComplex get() = order > 3
-
 fun Bezier.toCommand(): Pair<Vec2, Command> = when {
     isEmpty -> throw IllegalArgumentException("no points to form curve")
     isLine  -> start to LineTo(this[1])
