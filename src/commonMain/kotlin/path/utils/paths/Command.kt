@@ -6,6 +6,7 @@ import path.utils.math.arcToCurves
 import path.utils.math.near
 import path.utils.paths.Command.*
 import path.utils.paths.CommandType.*
+import kotlin.math.abs
 
 sealed class Command(val type: CommandType) {
     data class MoveTo(
@@ -62,7 +63,7 @@ sealed class Command(val type: CommandType) {
 
     data class HorizontalLineTo(
         var x: Double
-    ) : Command(HorizontalLineToTo)
+    ) : Command(HorizontalLineToType)
 
     data class HorizontalLineToRelative(
         var dx: Double
@@ -266,7 +267,7 @@ enum class CommandType(val argsCount: Int, val symbol: Char) {
 
     VerticalLineToRelativeType(1, 'v'),
 
-    HorizontalLineToTo(1, 'H'),
+    HorizontalLineToType(1, 'H'),
 
     HorizontalLineToRelativeType(1, 'h'),
 
@@ -305,7 +306,7 @@ enum class CommandType(val argsCount: Int, val symbol: Char) {
         MoveToRelativeType -> MoveToRelative(args[0], args[1])
         VerticalLineToType -> VerticalLineTo(args[0])
         VerticalLineToRelativeType -> VerticalLineToRelative(args[0])
-        HorizontalLineToTo -> HorizontalLineTo(args[0])
+        HorizontalLineToType -> HorizontalLineTo(args[0])
         HorizontalLineToRelativeType -> HorizontalLineToRelative(args[0])
         QuadToType -> QuadTo(args[0], args[1], args[2], args[3])
         QuadToRelativeType -> QuadToRelative(args[0], args[1], args[2], args[3])
@@ -400,17 +401,21 @@ fun Command.minify(from: Vec2, anchor: Vec2?, move: Vec2): Command? {
             }
         }
 
-        abs is QuadTo -> with(abs) { when {
-            from near p1 && p1 near p -> return null
-            anchorsNear(anchor, p1) -> SmoothQuadTo(p)
-            else -> abs
-        } }
+        abs is QuadTo -> with(abs) {
+            when {
+                from near p1 && p1 near p -> return null
+                anchorsNear(anchor, p1) -> SmoothQuadTo(p)
+                else -> abs
+            }
+        }
 
-        abs is CubicTo -> with(abs) { when {
-            from near p1 && p1 near p2 && p2 near p -> return null
-            anchorsNear(anchor, p1) -> SmoothCubicTo(p2, p)
-            else -> abs
-        } }
+        abs is CubicTo -> with(abs) {
+            when {
+                from near p1 && p1 near p2 && p2 near p -> return null
+                anchorsNear(anchor, p1) -> SmoothCubicTo(p2, p)
+                else -> abs
+            }
+        }
 
         abs is MoveTo -> if (abs.p near from) return null else abs
 
@@ -419,12 +424,9 @@ fun Command.minify(from: Vec2, anchor: Vec2?, move: Vec2): Command? {
         else -> abs
     }
 
-    val absolute = minified
-    val relative = absolute.toRelative(from)
-
-    val relLen = relative.toSvg().length
-    val absLen = absolute.toSvg().length
-    return if (relLen < absLen) relative else absolute
+    return minOf(minified, minified.toRelative(from)) { a, b ->
+        abs(a.arguments.sum()).compareTo(abs(b.arguments.sum()))
+    }
 }
 
 fun Command.closeToLine(moveTo: Vec2) = if (isClose) LineTo(moveTo) else this

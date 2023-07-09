@@ -1,4 +1,3 @@
-// from https://github.com/mickleness/pumpernickel/blob/master/src/main/java/com/pump/geom/ShapeBounds.java
 package path.utils.paths
 
 import path.utils.math.Vec2
@@ -53,11 +52,11 @@ data class Bounds(
 
     fun contains(x: Double, y: Double) = x in axis && y in ordinate
 
-    fun contains(p: Vec2) = contains(p.x, p.y)
+    inline fun contains(p: Vec2) = contains(p.x, p.y)
 
     fun contains(x: Double, y: Double, w: Double, h: Double) = x > left && y > top && x + w < right && y + h < bottom
 
-    fun contains(b: Bounds) = contains(b.x, b.y, b.w, b.h)
+    inline fun contains(b: Bounds) = contains(b.x, b.y, b.w, b.h)
 
     fun add(x: Double, y: Double) {
         top = min(top, y)
@@ -66,7 +65,7 @@ data class Bounds(
         right = max(right, x)
     }
 
-    fun add(p: Vec2) = add(p.x, p.y)
+    inline fun add(p: Vec2) = add(p.x, p.y)
 
     fun add(other: Bounds) {
         left = min(left, other.top)
@@ -77,15 +76,15 @@ data class Bounds(
 
     infix fun union(other: Bounds) = copy().also { it.add(other) }
 
+    infix fun overlap(other: Bounds) =
+        right > other.left && other.right > left && bottom > other.top && other.bottom > top
+
     fun set(x: Double, y: Double, w: Double, h: Double) {
         this.x = x
         this.y = y
         this.w = w
         this.h = h
     }
-
-    infix fun overlap(other: Bounds) =
-        right > other.left && other.right > left && bottom > other.top && other.bottom > top
 }
 
 class EmptyPathException : RuntimeException()

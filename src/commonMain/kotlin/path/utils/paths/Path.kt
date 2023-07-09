@@ -2,7 +2,7 @@ package path.utils.paths
 
 import path.utils.beziers.*
 import path.utils.math.Vec2
-import path.utils.math.orNull
+import path.utils.math.orZero
 import path.utils.paths.Command.*
 
 typealias Path = List<Command>
@@ -14,7 +14,7 @@ fun <T> Path.modified(
     val modified = mutableListOf<T>()
 
     iteratePathFull { command, last, anchor, moveTo ->
-        modified += transform(command, last.orNull(), anchor, moveTo.orNull())
+        modified += transform(command, last.orZero(), anchor, moveTo.orZero())
     }
 
     return pathMaker(modified)
@@ -24,10 +24,10 @@ inline fun Path.iteratePath(
     action: (Command, last: Vec2, anchor: Vec2?, moveTo: Vec2) -> Unit
 ): Pair<Vec2, Vec2> {
     val (last, _, move) = iteratePathFull { command, last, anchor, moveTo ->
-        action(command, last.orNull(), anchor, moveTo.orNull())
+        action(command, last.orZero(), anchor, moveTo.orZero())
     }
 
-    return Pair(last.orNull(), move.orNull())
+    return Pair(last.orZero(), move.orZero())
 }
 
 inline fun Path.iteratePathFull(
@@ -39,8 +39,8 @@ inline fun Path.iteratePathFull(
 
     for (c in this) {
         action(c, last, anchor, moveTo)
-        anchor = c.anchor(anchor, last.orNull())
-        last = c.lastPoint(last.orNull(), moveTo.orNull())
+        anchor = c.anchor(anchor, last.orZero())
+        last = c.lastPoint(last.orZero(), moveTo.orZero())
         if (c.isMove) moveTo = last
     }
 

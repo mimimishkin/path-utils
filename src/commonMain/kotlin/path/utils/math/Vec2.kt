@@ -74,7 +74,7 @@ fun Vec2.distToSegmentSq(a: Vec2, b: Vec2): Double {
 
 fun Vec2.distToSegment(a: Vec2, b: Vec2) = sqrt(distToSegmentSq(a, b))
 
-fun List<Vec2>.sum() = reduceOrNull { a, b -> a + b }.orNull()
+fun List<Vec2>.sum() = reduceOrNull { a, b -> a + b }.orZero()
 
 fun List<Vec2>.average() = sum() / size
 
@@ -86,7 +86,7 @@ fun lerp(a: Vec2, b: Vec2, t: Double) = a + (b - a) * t
 
 fun lerp(a: Double, b: Double, t: Double) = a + (b - a) * t
 
-fun Vec2?.orNull() = this ?: Vec2()
+fun Vec2?.orZero() = this ?: Vec2()
 
 fun Vec2.toCoordinates() = doubleArrayOf(x, y)
 
