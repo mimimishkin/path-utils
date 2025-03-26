@@ -22,43 +22,6 @@ kotlin {
     }
 }
 
-/*jreleaser {
-    project {
-        inceptionYear = "2025"
-        authors = listOf("mimimishkin")
-    }
-
-    release {
-        github {
-            skipRelease = true
-            skipTag = true
-        }
-    }
-
-    signing {
-        active = Active.ALWAYS
-        armored = true
-        verify = true
-    }
-
-    deploy {
-        maven {
-            mavenCentral.create("sonatype") {
-                active = Active.ALWAYS
-                url = "https://central.sonatype.com/api/v1/publisher"
-                stagingRepositories = listOf(layout.buildDirectory.dir("staging-deploy").get().toString())
-                setAuthorization("Basic")
-                sign = true
-                checksums = true
-                sourceJar = true
-                javadocJar = true
-                retryDelay = 60
-            }
-        }
-    }
-}
-*/
-
 mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
 
