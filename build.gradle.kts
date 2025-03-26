@@ -1,47 +1,28 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21
+
 plugins {
-    kotlin("multiplatform") version "1.7.20"
+    kotlin("multiplatform") version "2.1.10"
     `maven-publish`
 }
 
 group = "my.utilities"
-version = "1.0.0"
-
-repositories {
-    mavenCentral()
-}
+version = "1.0.1"
 
 kotlin {
-    jvm {
-        compilations.all {
-            kotlinOptions.jvmTarget = "1.8"
-        }
-        withJava()
-        testRuns["test"].executionTask.configure {
-            useJUnitPlatform()
-        }
-    }
+    jvm().compilerOptions.jvmTarget = JVM_21
 
     sourceSets {
-        val commonMain by getting
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-                implementation(kotlin("reflect"))
-            }
+        commonMain
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(kotlin("reflect"))
         }
-        val jvmMain by getting
-        val jvmTest by getting
+        jvmMain
     }
 }
 
 publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = project.group.toString()
-            artifactId = project.name
-            version = project.version.toString()
-
-            from(components["kotlin"])
-        }
+    repositories {
+        mavenCentral()
     }
 }
