@@ -6,8 +6,9 @@ plugins {
     id("com.vanniktech.maven.publish") version "0.31.0"
 }
 
-group = "dev.mimimishkin"
+group = "io.github.mimimishkin"
 version = "1.0.1"
+description = "Dependency-free multiplatform library for working with svg paths"
 
 kotlin {
     jvm().compilerOptions.jvmTarget = JVM_21
