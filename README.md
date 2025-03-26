@@ -1,6 +1,11 @@
 # Path utils
 Simple utils for svg paths and some more
 
+**Gradle:**
+```kotlin
+implementation("io.github.mimimishkin:path-utils:1.0.1")
+```
+
 ## Samples
 
 #### Svg paths
