@@ -15,7 +15,6 @@ kotlin {
         commonMain
         commonTest.dependencies {
             implementation(kotlin("test"))
-            implementation(kotlin("reflect"))
         }
         jvmMain
     }

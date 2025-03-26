@@ -1,9 +1,6 @@
 package path.utils.math
-
-import org.junit.jupiter.api.Test
-
-import org.junit.jupiter.api.Assertions.*
 import path.utils.paths.*
+import kotlin.test.Test
 
 class TransformsTest {
     private infix fun Command.near(other: Command) = type == other.type && arguments.zip(other.arguments).all { (a, b) -> a near b }

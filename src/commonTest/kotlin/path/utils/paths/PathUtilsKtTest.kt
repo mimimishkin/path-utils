@@ -1,10 +1,8 @@
 package path.utils.paths
 
-import org.junit.jupiter.api.Test
-
-import org.junit.jupiter.api.Assertions.*
 import path.utils.math.Tolerance
 import path.utils.math.Vec2
+import kotlin.test.Test
 
 class PathUtilsKtTest {
     @Test
