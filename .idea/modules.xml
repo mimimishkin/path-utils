@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/path-utils.iml" filepath="$PROJECT_DIR$/.idea/modules/path-utils.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/path-utils.commonMain.iml" filepath="$PROJECT_DIR$/.idea/modules/path-utils.commonMain.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/path-utils.commonTest.iml" filepath="$PROJECT_DIR$/.idea/modules/path-utils.commonTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/path-utils.jvmMain.iml" filepath="$PROJECT_DIR$/.idea/modules/path-utils.jvmMain.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/path-utils.jvmTest.iml" filepath="$PROJECT_DIR$/.idea/modules/path-utils.jvmTest.iml" />
+    </modules>
+  </component>
+</project>
