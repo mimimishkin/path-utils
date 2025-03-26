@@ -1,10 +1,9 @@
+import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21
-import org.jreleaser.model.Active
 
 plugins {
     kotlin("multiplatform") version "2.1.10"
-    id("org.jreleaser") version "1.17.0"
-    `maven-publish`
+    id("com.vanniktech.maven.publish") version "0.31.0"
 }
 
 group = "dev.mimimishkin"
@@ -22,7 +21,7 @@ kotlin {
     }
 }
 
-jreleaser {
+/*jreleaser {
     project {
         inceptionYear = "2025"
         authors = listOf("mimimishkin")
@@ -54,6 +53,38 @@ jreleaser {
                 javadocJar = true
                 retryDelay = 60
             }
+        }
+    }
+}
+*/
+
+mavenPublishing {
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+
+    signAllPublications()
+
+    coordinates(group.toString(), name, version.toString())
+
+    pom {
+        name = project.name
+        description = project.description
+        inceptionYear = "2025"
+        url = "https://github.com/mimimishkin/path-utils"
+        licenses {
+            license {
+                name = "MIT"
+            }
+        }
+        developers {
+            developer {
+                id = "mimimishkin"
+                name = "Mimimishkin"
+                email = "printf.mika@gmail.com"
+            }
+        }
+        scm {
+            url = "https://github.com/mimimishkin/path-utils"
+            connection = "scm:git:git://github.com/mimimishkin/path-utils"
         }
     }
 }
