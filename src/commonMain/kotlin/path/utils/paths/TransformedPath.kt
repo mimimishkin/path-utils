@@ -24,7 +24,18 @@ fun Path.transform(transform: (coords: List<Double>) -> List<Double>): Path {
     return transformed
 }
 
-fun Path.transformWith(matrix: MatrixTransform) = transform { c: List<Double> -> matrix.transform(c) }
+fun Path.transformWith(matrix: MatrixTransform): Path {
+    if (matrix.normalize().isIdentical)
+        return this
+
+    if (matrix.isTranslate)
+        return translate(matrix.m02, matrix.m12)
+
+    if (matrix.isScale)
+        return scale(matrix.m00, matrix.m11)
+
+    return transform { c: List<Double> -> matrix.transform(c) }
+}
 
 fun Path.translate(tx: Double = 0.0, ty: Double = 0.0): Path {
     val tp = Vec2(tx, ty)
