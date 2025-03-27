@@ -4,9 +4,7 @@ import path.utils.math.*
 import path.utils.math.det
 import path.utils.math.factorial
 import path.utils.math.implictize
-import path.utils.paths.Bounds
-import path.utils.paths.Path
-import path.utils.paths.curve
+import path.utils.paths.*
 import kotlin.math.*
 
 class NoArcLengthParametrizationException(msg: String) : Exception(msg)
@@ -307,7 +305,7 @@ open class Bezier(val points: List<Vec2>) : Cloneable {
         !this.fastBounds.overlap(other.fastBounds) -> emptyList()
 
         isLine && other.isLine -> {
-            val asx = this.start.x; val asy = this.start.y; val aex = this.end.x; val aey = this.end.y
+            val asx = this.start.x;  val asy = this.start.y;  val aex = this.end.x;  val aey = this.end.y
             val bsy = other.start.y; val bsx = other.start.x; val bex = other.end.x; val bey = other.end.y
             val u = (bey - bsy) * (aex - asx) - (bex - bsx) * (aey - asy)
 
@@ -524,9 +522,15 @@ internal fun List<Double>.coerceBezier() = map { it.coerceIn(0.0, 1.0) }
 infix fun Bezier.near(other: Bezier) =
     order == other.order && points.zip(other.points).all { (a, b) -> a near b }
 
-fun Bezier.approximateWithCubic(): Path = curve(
-    xy = { point(it) },
-    dxy = { derivative.point(it) },
-    interval = 0.0..1.0,
-    next = { it + (1.0 / order / 5)}
-)
+fun Bezier.approximateWithCubics(): Path = if (!isComplex) {
+    BeziersPath(this).toPath()
+} else {
+    BeziersPath(this).toCalmPath().map { calmBezier ->
+        curve(
+            xy = { calmBezier.point(it) },
+            dxy = { calmBezier.derivative.point(it) },
+            interval = 0.0..1.0,
+            next = { it + 1.0 / (order - 1) }
+        )
+    }.joinToPath().minify()
+}
