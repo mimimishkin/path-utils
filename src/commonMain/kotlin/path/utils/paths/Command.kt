@@ -431,8 +431,10 @@ fun Command.minify(from: Vec2, anchor: Vec2?, move: Vec2): Command? {
         else -> abs
     }
 
-    return minOf(minified, minified.toRelative(from)) { a, b ->
-        abs(a.arguments.sum()).compareTo(abs(b.arguments.sum()))
+    return listOf(minified, minified.toRelative(from)).minBy {
+        // compute which arguments will be shorter
+        // why do we do this such strange method? Just because it's faster than "toString().length" or counting with cycle
+        it.arguments.reduce { a, b -> abs(a) * abs(b) * (if (a < 0) 10 else 1) * (if (b < 0) 10 else 1) }
     }
 }
 
