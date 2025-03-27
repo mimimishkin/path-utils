@@ -13,15 +13,20 @@ enum class WindRule { NonNull, EvenOdd }
 
 val Path.bounds get() = computeBounds(this)
 
-private val rectType = listOf(MoveToType, HorizontalLineToRelativeType, VerticalLineToRelativeType, HorizontalLineToRelativeType, CloseType)
+private val rectType1 = listOf(MoveToRelativeType, HorizontalLineToRelativeType, VerticalLineToRelativeType, HorizontalLineToRelativeType, CloseType)
+private val rectType2 = listOf(MoveToRelativeType, VerticalLineToRelativeType, HorizontalLineToRelativeType, VerticalLineToRelativeType, CloseType)
 val Path.isRectangle: Boolean get() {
-    var rect = minify().toRelative().validate()
-    if (!rect.isClockwise) rect = rect.reversePath()
+    val rect = minify().validate().toRelative()
 
-    if (rect.map { it.type } == rectType) {
+    val types = rect.map { it.type }
+    if (types == rectType1) {
         val top = rect[1] as HorizontalLineToRelative
         val bottom = rect[3] as HorizontalLineToRelative
         return top.dx near -bottom.dx
+    } else if (types == rectType2) {
+        val top = rect[1] as Command.VerticalLineToRelative
+        val bottom = rect[3] as Command.VerticalLineToRelative
+        return top.dy near -bottom.dy
     }
 
     return false

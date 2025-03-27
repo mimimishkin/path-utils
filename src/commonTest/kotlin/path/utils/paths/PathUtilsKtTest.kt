@@ -8,7 +8,11 @@ class PathUtilsKtTest {
     @Test
     fun isRectangle() {
         assert(rect(0.0, 23.0, 45.0, 45.0).isRectangle)
-        assert(!rect(0.0, 23.0, 45.0, 45.0, 2.0).isRectangle)
+        assert(!circle(0.0, 23.0, 45.0).isRectangle)
+    }
+    @Test
+    fun isReversedRectangle() {
+        assert(rect(0.0, 23.0, 45.0, 45.0).reversePath().isRectangle)
     }
 
     @Test
