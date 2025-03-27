@@ -394,7 +394,7 @@ class MatrixTransform(vararg matrix: Double) {
         this.matrix = matrix
     }
 
-    fun normalize() {
+    fun normalize(): MatrixTransform {
         val z = matrix[2, 2]
         if (z != 1.0) {
             matrix[0, 0] /= z
@@ -407,6 +407,8 @@ class MatrixTransform(vararg matrix: Double) {
             matrix[2, 1] /= z
             matrix[2, 2] /= z
         }
+
+        return this
     }
 
     fun pre(other: MatrixTransform): MatrixTransform {
