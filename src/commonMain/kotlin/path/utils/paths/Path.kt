@@ -89,6 +89,8 @@ fun Path.splitToSubPaths(): List<Path> {
     return paths
 }
 
+fun Path.isSinglePath() = count { it.isMove() } <= 1
+
 fun List<Path>.joinToPath(): Path = flatMap { sub ->
     val first = sub.firstOrNull()
     val needMove = first != null && !first.isMove()
