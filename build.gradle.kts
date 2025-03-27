@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "io.github.mimimishkin"
-version = "1.0.1"
+version = "1.0.2"
 description = "Dependency-free multiplatform library for working with svg paths"
 
 kotlin {
