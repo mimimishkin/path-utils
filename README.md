@@ -3,7 +3,7 @@ Simple utils for svg paths and some more
 
 **Gradle:**
 ```kotlin
-implementation("io.github.mimimishkin:path-utils:1.0.1")
+implementation("io.github.mimimishkin:path-utils:1.0.2")
 ```
 
 ## Samples
