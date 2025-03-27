@@ -34,8 +34,8 @@ val Path.isRectangle: Boolean get() {
 
 val Path.isClockwise get() = toBeziers().isClockwise
 
-fun Path.contains(x: Double, y: Double) = toBeziers().toCalmPath().contains(x, y)
-fun Path.contains(p: Vec2) = contains(p.x, p.y)
+fun Path.contains(x: Double, y: Double) = toBeziers().contains(x, y)
+inline fun Path.contains(p: Vec2) = contains(p.x, p.y)
 
 fun Path.contains(other: Path) = toBeziers().contains(other.toBeziers())
 
