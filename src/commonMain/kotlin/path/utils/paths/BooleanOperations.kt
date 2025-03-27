@@ -25,9 +25,15 @@ fun Path.evenOdd() = toOperand(EvenOdd).toPath()
 
 infix fun Path.union(other: Path) = (toOperand() union other.toOperand()).toPath()
 
+inline infix fun Path.or(other: Path) = this union other
+
 infix fun Path.difference(other: Path) = (toOperand() difference other.toOperand()).toPath()
 
+inline infix fun Path.not(other: Path) = this difference other
+
 infix fun Path.intersect(other: Path) = (toOperand() intersect other.toOperand()).toPath()
+
+inline infix fun Path.and(other: Path) = this intersect other
 
 infix fun Path.xor(other: Path) = (toOperand() xor other.toOperand()).toPath()
 
