@@ -353,6 +353,40 @@ class MatrixTransform(vararg matrix: Double) {
         get() = matrix[8]
         set(v) { matrix[8] = v }
 
+    val isIdentical get() = matrix.contentEquals(doubleArrayOf(
+        1.0, 0.0, 0.0,
+        0.0, 1.0, 0.0,
+        0.0, 0.0, 1.0,))
+
+    val isAffine: Boolean get() = m20 == 0.0 && m21 == 0.0
+
+    val isTranslate get() = isAffine && m00 == m22 && m11 == m22 && m01 == 0.0 && m10 == 0.0
+
+    val isScale get() = isAffine && m01 == 0.0 && m12 == 0.0 && m10 == 0.0 && m12 == 0.0
+
+    val isRotate: Boolean get() {
+        if (!isAffine || m02 != 0.0 || m12 != 0.0 || m01 != m11 || m01 != -m10)
+            return false
+
+        return sin(acos(m00)) near m10
+    }
+
+    val isRotateX: Boolean get() {
+        if (m00 != 1.0 || m01 != 0.0 || m02 != 0.0 || m10 != 0.0 || m20 != 0.0 || m11 != m22 || m12 != -m20)
+            return false
+
+        return sin(acos(m11)) near m21
+    }
+
+    val isRotateY: Boolean get() {
+        if (m01 != 0.0 || m01 != 0.0 || m11 != 1.0 || m12 != 0.0 || m21 != 0.0 || m00 != m22 || m02 != -m20)
+            return false
+
+        return sin(acos(m00)) near m02
+    }
+
+    // TODO: tests
+
     init {
         if (matrix.size != 9)
             throw IllegalArgumentException("Matrix 3x3 was expected")
