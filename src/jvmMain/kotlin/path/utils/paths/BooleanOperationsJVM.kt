@@ -5,7 +5,7 @@ import java.awt.geom.Area
 
 private class AreaOperand(val area: Area) : Operand {
     private fun Operand.toAreaOperand() =
-        if (this is AreaOperand) this else AreaOperand(toPath().toArea())
+        (this as? AreaOperand) ?: AreaOperand(toPath().toArea())
 
     override fun toPath() = area.toPath()
 
