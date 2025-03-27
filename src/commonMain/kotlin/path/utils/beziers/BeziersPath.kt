@@ -59,19 +59,24 @@ class BeziersPath(val beziers: List<Bezier>, val isCalm: Boolean = false) {
 
     val isFlat by lazy { beziers.all { !it.isCurve } }
 
+    private var calm: BeziersPath? = null
     fun toCalmPath(): BeziersPath {
         if (isCalm) return this
 
-        val calmBeziers = beziers.flatMap { bezier ->
-            // t values where curve change direction
-            val roots = bezier.dyPoly.roots + listOf(0.0, 1.0)
-            // We split curves to observe them as lines
-            roots.filterBezier().veryDistinct().sorted().zipWithNext {
-                    t1, t2 -> bezier.sub(t1, t2)
+        if (calm == null) {
+            val calmBeziers = beziers.flatMap { bezier ->
+                // t values where curve changes direction
+                val roots = bezier.dyPoly.roots + bezier.dxPoly.roots + listOf(0.0, 1.0)
+                // We split curves to observe them as lines
+                roots.filterBezier().veryDistinct().sorted().zipWithNext {
+                        t1, t2 -> bezier.sub(t1, t2)
+                }
             }
+
+            calm = BeziersPath(calmBeziers, true)
         }
 
-        return BeziersPath(calmBeziers, true)
+        return calm!!
     }
 
     private val _bounds = lazy { map { it.bounds }.reduce { a, b -> a union b } }
@@ -90,8 +95,8 @@ class BeziersPath(val beziers: List<Bezier>, val isCalm: Boolean = false) {
         var crossings = 0
         for (bezier in beziers) {
             //                   *
-            //         p      *         check if p is on left side
-            //              *           of curve
+            //         p      *         check if p is on the left
+            //              *           side of a curve
             //             *
 
             val (minY, maxY) = listOf(bezier.start.y, bezier.end.y).run { min() to max() }
@@ -113,7 +118,7 @@ fun Command.toBezier(from: Vec2) = when(this) {
     is LineTo -> Bezier(from, p)
     is QuadTo -> Bezier(from, p1, p)
     is CubicTo -> Bezier(from, p1, p2, p)
-    else -> throw IllegalArgumentException("Line, Quad or Cubic are expected")
+    else -> throw IllegalArgumentException("Line, Quad and Cubic were expected")
 }
 
 fun Path.toBeziers(): BeziersPath {
@@ -162,7 +167,7 @@ fun BeziersPath.toPath(): Path {
 
         path += when {
             bezier.isEmpty -> emptyList()
-            bezier.isComplex -> bezier.approximateWithCubic().run { subList(1, size) } // remove first moveTo
+            bezier.isComplex -> bezier.approximateWithCubics().run { subList(1, size) } // remove first moveTo
             else -> listOf(bezier.toCommand().second)
         }
     }
