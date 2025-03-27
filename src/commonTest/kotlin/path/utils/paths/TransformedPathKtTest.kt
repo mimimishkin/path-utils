@@ -1,7 +1,7 @@
 package path.utils.paths
 
+import path.utils.math.Vec2
 import path.utils.math.near
-import java.lang.Math.toRadians
 import kotlin.random.Random
 import kotlin.test.Test
 
@@ -30,6 +30,21 @@ class TransformedPathKtTest {
 
         assert(x * sx near nx)
         assert(y * sy near ny)
+        assert(w * sx near nw)
+        assert(h * sy near nh)
+    }
+
+    @Test
+    fun scaleWithAnchor() {
+        val (x, y, w, h) = path.bounds
+        val sx = Random.nextDouble()
+        val sy = Random.nextDouble()
+        val cx = Random.nextDouble()
+        val cy = Random.nextDouble()
+        val (nx, ny, nw, nh) = path.scale(sx, sy, anchor = Vec2(cx, cy)).bounds
+
+        assert((x - cx) * sx + cx near nx)
+        assert((y - cy) * sy + cy near ny)
         assert(w * sx near nw)
         assert(h * sy near nh)
     }
