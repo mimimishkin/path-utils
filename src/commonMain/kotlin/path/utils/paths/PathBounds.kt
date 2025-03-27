@@ -2,9 +2,7 @@ package path.utils.paths
 
 import path.utils.math.Vec2
 import path.utils.paths.Command.*
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.sqrt
+import kotlin.math.*
 
 data class Bounds(
     var x: Double = 0.0,
@@ -85,6 +83,13 @@ data class Bounds(
         this.w = w
         this.h = h
     }
+
+    fun round(): Bounds = Bounds(
+        x = round(x),
+        y = round(y),
+        w = round(w),
+        h = round(h)
+    )
 }
 
 class EmptyPathException : RuntimeException()
@@ -156,25 +161,25 @@ internal fun computeBounds(path: Path): Bounds {
                     var t = -xCoeff[1] / (2 * xCoeff[0])
                     if (t > 0 && t < 1) {
                         val x = xCoeff[0] * t * t + xCoeff[1] * t + xCoeff[2]
-                        if (x < egles!![leftMaxX]) {
-                            egles!![leftMaxX] = x
-                            egles!![leftMaxY] = yCoeff[0] * t * t + yCoeff[1] * t + yCoeff[2]
+                        if (x < egles[leftMaxX]) {
+                            egles[leftMaxX] = x
+                            egles[leftMaxY] = yCoeff[0] * t * t + yCoeff[1] * t + yCoeff[2]
                         }
-                        if (x > egles!![rightMaxX]) {
-                            egles!![rightMaxX] = x
-                            egles!![rightMaxY] = yCoeff[0] * t * t + yCoeff[1] * t + yCoeff[2]
+                        if (x > egles[rightMaxX]) {
+                            egles[rightMaxX] = x
+                            egles[rightMaxY] = yCoeff[0] * t * t + yCoeff[1] * t + yCoeff[2]
                         }
                     }
                     t = -yCoeff[1] / (2 * yCoeff[0])
                     if (t > 0 && t < 1) {
                         val y = yCoeff[0] * t * t + yCoeff[1] * t + yCoeff[2]
-                        if (y < egles!![topMaxY]) {
-                            egles!![topMaxX] = xCoeff[0] * t * t + xCoeff[1] * t + xCoeff[2]
-                            egles!![topMaxY] = y
+                        if (y < egles[topMaxY]) {
+                            egles[topMaxX] = xCoeff[0] * t * t + xCoeff[1] * t + xCoeff[2]
+                            egles[topMaxY] = y
                         }
-                        if (y > egles!![bottomMaxY]) {
-                            egles!![bottomMaxX] = xCoeff[0] * t * t + xCoeff[1] * t + xCoeff[2]
-                            egles!![bottomMaxY] = y
+                        if (y > egles[bottomMaxY]) {
+                            egles[bottomMaxX] = xCoeff[0] * t * t + xCoeff[1] * t + xCoeff[2]
+                            egles[bottomMaxY] = y
                         }
                     }
                 }
@@ -206,13 +211,13 @@ internal fun computeBounds(path: Path): Bounds {
                         val t = -2 * xCoeff[1] / (6 * xCoeff[0])
                         if (t > 0 && t < 1) {
                             val x = xCoeff[0] * t * t * t + xCoeff[1] * t * t + xCoeff[2] * t + xCoeff[3]
-                            if (x < egles!![leftMaxX]) {
-                                egles!![leftMaxX] = x
-                                egles!![leftMaxY] = yCoeff[0] * t * t * t + yCoeff[1] * t * t + yCoeff[2] * t + yCoeff[3]
+                            if (x < egles[leftMaxX]) {
+                                egles[leftMaxX] = x
+                                egles[leftMaxY] = yCoeff[0] * t * t * t + yCoeff[1] * t * t + yCoeff[2] * t + yCoeff[3]
                             }
-                            if (x > egles!![rightMaxX]) {
-                                egles!![rightMaxX] = x
-                                egles!![rightMaxY] = (yCoeff[0] * t * t * t) + yCoeff[1] * t * t + yCoeff[2] * t + yCoeff[3]
+                            if (x > egles[rightMaxX]) {
+                                egles[rightMaxX] = x
+                                egles[rightMaxY] = (yCoeff[0] * t * t * t) + yCoeff[1] * t * t + yCoeff[2] * t + yCoeff[3]
                             }
                         }
                     } else {
@@ -221,25 +226,25 @@ internal fun computeBounds(path: Path): Bounds {
                         var t = (-2 * xCoeff[1] + det) / (6 * xCoeff[0])
                         if (t > 0 && t < 1) {
                             val x = xCoeff[0] * t * t * t + xCoeff[1] * t * t + xCoeff[2] * t + xCoeff[3]
-                            if (x < egles!![leftMaxX]) {
-                                egles!![leftMaxX] = x
-                                egles!![leftMaxY] = yCoeff[0] * t * t * t + yCoeff[1] * t * t + yCoeff[2] * t + yCoeff[3]
+                            if (x < egles[leftMaxX]) {
+                                egles[leftMaxX] = x
+                                egles[leftMaxY] = yCoeff[0] * t * t * t + yCoeff[1] * t * t + yCoeff[2] * t + yCoeff[3]
                             }
-                            if (x > egles!![rightMaxX]) {
-                                egles!![rightMaxX] = x
-                                egles!![rightMaxY] = (yCoeff[0] * t * t * t) + yCoeff[1] * t * t + yCoeff[2] * t + yCoeff[3]
+                            if (x > egles[rightMaxX]) {
+                                egles[rightMaxX] = x
+                                egles[rightMaxY] = (yCoeff[0] * t * t * t) + yCoeff[1] * t * t + yCoeff[2] * t + yCoeff[3]
                             }
                         }
                         t = (-2 * xCoeff[1] - det) / (6 * xCoeff[0])
                         if (t > 0 && t < 1) {
                             val x = xCoeff[0] * t * t * t + xCoeff[1] * t * t + xCoeff[2] * t + xCoeff[3]
-                            if (x < egles!![leftMaxX]) {
-                                egles!![leftMaxX] = x
-                                egles!![leftMaxY] = yCoeff[0] * t * t * t + yCoeff[1] * t * t + yCoeff[2] * t + yCoeff[3]
+                            if (x < egles[leftMaxX]) {
+                                egles[leftMaxX] = x
+                                egles[leftMaxY] = yCoeff[0] * t * t * t + yCoeff[1] * t * t + yCoeff[2] * t + yCoeff[3]
                             }
-                            if (x > egles!![rightMaxX]) {
-                                egles!![rightMaxX] = x
-                                egles!![rightMaxY] = (yCoeff[0] * t * t * t) + yCoeff[1] * t * t + yCoeff[2] * t + yCoeff[3]
+                            if (x > egles[rightMaxX]) {
+                                egles[rightMaxX] = x
+                                egles[rightMaxY] = (yCoeff[0] * t * t * t) + yCoeff[1] * t * t + yCoeff[2] * t + yCoeff[3]
                             }
                         }
                     }
@@ -251,13 +256,13 @@ internal fun computeBounds(path: Path): Bounds {
                         val t = -2 * yCoeff[1] / (6 * yCoeff[0])
                         if (t > 0 && t < 1) {
                             val y = yCoeff[0] * t * t * t + yCoeff[1] * t * t + yCoeff[2] * t + yCoeff[3]
-                            if (y < egles!![topMaxY]) {
-                                egles!![topMaxX] = xCoeff[0] * t * t * t + xCoeff[1] * t * t + xCoeff[2] * t + xCoeff[3]
-                                egles!![topMaxY] = y
+                            if (y < egles[topMaxY]) {
+                                egles[topMaxX] = xCoeff[0] * t * t * t + xCoeff[1] * t * t + xCoeff[2] * t + xCoeff[3]
+                                egles[topMaxY] = y
                             }
-                            if (y > egles!![bottomMaxY]) {
-                                egles!![bottomMaxX] = (xCoeff[0] * t * t * t) + xCoeff[1] * t * t + xCoeff[2] * t + xCoeff[3]
-                                egles!![bottomMaxY] = y
+                            if (y > egles[bottomMaxY]) {
+                                egles[bottomMaxX] = (xCoeff[0] * t * t * t) + xCoeff[1] * t * t + xCoeff[2] * t + xCoeff[3]
+                                egles[bottomMaxY] = y
                             }
                         }
                     } else {
@@ -266,25 +271,25 @@ internal fun computeBounds(path: Path): Bounds {
                         var t = (-2 * yCoeff[1] + det) / (6 * yCoeff[0])
                         if (t > 0 && t < 1) {
                             val y = yCoeff[0] * t * t * t + yCoeff[1] * t * t + yCoeff[2] * t + yCoeff[3]
-                            if (y < egles!![topMaxY]) {
-                                egles!![topMaxX] = xCoeff[0] * t * t * t + xCoeff[1] * t * t + xCoeff[2] * t + xCoeff[3]
-                                egles!![topMaxY] = y
+                            if (y < egles[topMaxY]) {
+                                egles[topMaxX] = xCoeff[0] * t * t * t + xCoeff[1] * t * t + xCoeff[2] * t + xCoeff[3]
+                                egles[topMaxY] = y
                             }
-                            if (y > egles!![bottomMaxY]) {
-                                egles!![bottomMaxX] = (xCoeff[0] * t * t * t) + xCoeff[1] * t * t + xCoeff[2] * t + xCoeff[3]
-                                egles!![bottomMaxY] = y
+                            if (y > egles[bottomMaxY]) {
+                                egles[bottomMaxX] = (xCoeff[0] * t * t * t) + xCoeff[1] * t * t + xCoeff[2] * t + xCoeff[3]
+                                egles[bottomMaxY] = y
                             }
                         }
                         t = (-2 * yCoeff[1] - det) / (6 * yCoeff[0])
                         if (t > 0 && t < 1) {
                             val y = yCoeff[0] * t * t * t + yCoeff[1] * t * t + yCoeff[2] * t + yCoeff[3]
-                            if (y < egles!![topMaxY]) {
-                                egles!![topMaxX] = xCoeff[0] * t * t * t + xCoeff[1] * t * t + xCoeff[2] * t + xCoeff[3]
-                                egles!![topMaxY] = y
+                            if (y < egles[topMaxY]) {
+                                egles[topMaxX] = xCoeff[0] * t * t * t + xCoeff[1] * t * t + xCoeff[2] * t + xCoeff[3]
+                                egles[topMaxY] = y
                             }
-                            if (y > egles!![bottomMaxY]) {
-                                egles!![bottomMaxX] = (xCoeff[0] * t * t * t) + xCoeff[1] * t * t + xCoeff[2] * t + xCoeff[3]
-                                egles!![bottomMaxY] = y
+                            if (y > egles[bottomMaxY]) {
+                                egles[bottomMaxX] = (xCoeff[0] * t * t * t) + xCoeff[1] * t * t + xCoeff[2] * t + xCoeff[3]
+                                egles[bottomMaxY] = y
                             }
                         }
                     }
