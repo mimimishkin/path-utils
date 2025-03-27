@@ -41,7 +41,7 @@ inline fun Path.iteratePathFull(
         action(c, last, anchor, moveTo)
         anchor = c.anchor(anchor, last.orZero())
         last = c.lastPoint(last.orZero(), moveTo.orZero())
-        if (c.isMove) moveTo = last
+        if (c.isMove()) moveTo = last
     }
 
     return Triple(last, anchor, moveTo)
@@ -79,7 +79,7 @@ fun Path.splitToSubPaths(): List<Path> {
     val paths = mutableListOf<MutablePath>()
 
     iteratePath { command, last, _, _ ->
-        if (command.isMove) {
+        if (command.isMove()) {
             paths += mutablePath().append(command.toAbsolute(last))
         } else {
             paths.last() += command
@@ -91,7 +91,7 @@ fun Path.splitToSubPaths(): List<Path> {
 
 fun List<Path>.joinToPath(): Path = flatMap { sub ->
     val first = sub.firstOrNull()
-    val needMove = first != null && !first.isMove
+    val needMove = first != null && !first.isMove()
     if (needMove) listOf(MoveTo(Vec2())) + sub else sub
 }
 

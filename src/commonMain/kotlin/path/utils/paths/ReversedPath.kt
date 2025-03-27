@@ -3,7 +3,7 @@ package path.utils.paths
 import path.utils.paths.Command.*
 
 fun Path.reversePath(): Path = validate().toRelative().splitToSubPaths().asReversed().flatMap { sub ->
-    val hasClose = sub.lastOrNull()?.isClose == true
+    val hasClose = sub.lastOrNull()?.isClose() == true
     val toIndex = sub.size - if (hasClose) 1 else 0
     val (lastPoint, _) = sub.subList(0, toIndex).iteratePath { _, _, _, _ -> }
 

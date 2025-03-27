@@ -1,12 +1,19 @@
 package path.utils.paths
 
 import path.utils.beziers.toCommand
+import path.utils.math.Tolerance
 import path.utils.math.Vec2
 import path.utils.math.arcToCurves
 import path.utils.math.near
 import path.utils.paths.Command.*
 import path.utils.paths.CommandType.*
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.util.*
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 import kotlin.math.abs
+import kotlin.math.log10
 
 sealed class Command(val type: CommandType) {
     data class MoveTo(
@@ -390,7 +397,7 @@ fun Command.minify(from: Vec2, anchor: Vec2?, move: Vec2): Command? {
 
     val abs = toAbsolute(from)
     val minified = when {
-        abs.isLine -> {
+        abs.isLine() -> {
             val to = abs.lastPoint(from, move)
             when {
                 to near from -> return null
@@ -429,56 +436,177 @@ fun Command.minify(from: Vec2, anchor: Vec2?, move: Vec2): Command? {
     }
 }
 
-fun Command.closeToLine(moveTo: Vec2) = if (isClose) LineTo(moveTo) else this
+fun Command.closeToLine(moveTo: Vec2) = if (isClose()) LineTo(moveTo) else this
 
-val Command?.isAbsolute get() =
-    this is MoveTo ||
-    this is LineTo ||
-    this is VerticalLineTo ||
-    this is HorizontalLineTo ||
-    this is QuadTo ||
-    this is CubicTo ||
-    this is SmoothQuadTo ||
-    this is SmoothCubicTo ||
-    this is ArcTo ||
-    this is Close
+@OptIn(ExperimentalContracts::class)
+fun Command?.isAbsolute(): Boolean {
+    contract {
+        returns(true) implies (
+                this@isAbsolute is MoveTo||
+                this@isAbsolute is LineTo ||
+                this@isAbsolute is VerticalLineTo ||
+                this@isAbsolute is HorizontalLineTo ||
+                this@isAbsolute is QuadTo ||
+                this@isAbsolute is CubicTo ||
+                this@isAbsolute is SmoothQuadTo ||
+                this@isAbsolute is SmoothCubicTo ||
+                this@isAbsolute is ArcTo ||
+                this@isAbsolute is Close
+        )
+    }
 
-val Command?.isRelative get() =
-    this is MoveToRelative ||
-    this is LineToRelative ||
-    this is VerticalLineToRelative ||
-    this is HorizontalLineToRelative ||
-    this is QuadToRelative ||
-    this is CubicToRelative ||
-    this is SmoothQuadToRelative ||
-    this is SmoothCubicToRelative ||
-    this is ArcToRelative ||
-    this is Close
+    return this is MoveTo ||
+            this is LineTo ||
+            this is VerticalLineTo ||
+            this is HorizontalLineTo ||
+            this is QuadTo ||
+            this is CubicTo ||
+            this is SmoothQuadTo ||
+            this is SmoothCubicTo ||
+            this is ArcTo ||
+            this is Close
+}
 
-val Command?.isSimple get() =
-    this is MoveTo || this is LineTo || this is QuadTo || this is CubicTo || this is Close
+@OptIn(ExperimentalContracts::class)
+fun Command?.isRelative(): Boolean {
+    contract {
+        returns(true) implies (
+                this@isRelative is MoveToRelative||
+                this@isRelative is LineToRelative ||
+                this@isRelative is VerticalLineToRelative ||
+                this@isRelative is HorizontalLineToRelative ||
+                this@isRelative is QuadToRelative ||
+                this@isRelative is CubicToRelative ||
+                this@isRelative is SmoothQuadToRelative ||
+                this@isRelative is SmoothCubicToRelative ||
+                this@isRelative is ArcToRelative ||
+                this@isRelative is Close
+        )
+    }
 
-val Command?.isLine get() =
-    this is LineTo || this is LineToRelative ||
-    this is VerticalLineTo || this is VerticalLineToRelative ||
-    this is HorizontalLineTo || this is HorizontalLineToRelative ||
-    this is Close
+    return this is MoveToRelative ||
+            this is LineToRelative ||
+            this is VerticalLineToRelative ||
+            this is HorizontalLineToRelative ||
+            this is QuadToRelative ||
+            this is CubicToRelative ||
+            this is SmoothQuadToRelative ||
+            this is SmoothCubicToRelative ||
+            this is ArcToRelative ||
+            this is Close
+}
 
-val Command?.isCurve get() =
-    this is QuadTo || this is QuadToRelative ||
-    this is CubicTo || this is CubicToRelative ||
-    this is SmoothQuadTo || this is SmoothQuadToRelative ||
-    this is SmoothCubicTo || this is SmoothCubicToRelative
+@OptIn(ExperimentalContracts::class)
+fun Command?.isSimple(): Boolean {
+    contract {
+        returns(true) implies (
+                this@isSimple is MoveTo ||
+                this@isSimple is LineTo ||
+                this@isSimple is QuadTo ||
+                this@isSimple is CubicTo ||
+                this@isSimple is Close
+        )
+    }
 
-val Command?.isSmooth get() =
-    this is SmoothQuadTo || this is SmoothQuadToRelative ||
-    this is SmoothCubicTo || this is SmoothCubicToRelative
+    return this is MoveTo ||
+            this is LineTo ||
+            this is QuadTo ||
+            this is CubicTo ||
+            this is Close
+}
 
-val Command?.isMove get() = this is MoveTo || this is MoveToRelative
+@OptIn(ExperimentalContracts::class)
+fun Command?.isLine(): Boolean {
+    contract {
+        returns(true) implies (
+                this@isLine is LineTo ||
+                this@isLine is LineToRelative ||
+                this@isLine is VerticalLineTo ||
+                this@isLine is VerticalLineToRelative ||
+                this@isLine is HorizontalLineTo ||
+                this@isLine is HorizontalLineToRelative ||
+                this@isLine is Close
+        )
+    }
 
-val Command?.isArc get() = this is ArcTo || this is ArcToRelative
+    return this is LineTo ||
+            this is LineToRelative ||
+            this is VerticalLineTo ||
+            this is VerticalLineToRelative ||
+            this is HorizontalLineTo ||
+            this is HorizontalLineToRelative ||
+            this is Close
+}
 
-val Command?.isClose get() = this is Close
+@OptIn(ExperimentalContracts::class)
+fun Command?.isCurve(): Boolean {
+    contract {
+        returns(true) implies (
+            this@isCurve is QuadTo ||
+            this@isCurve is QuadToRelative ||
+            this@isCurve is CubicTo ||
+            this@isCurve is CubicToRelative ||
+            this@isCurve is SmoothQuadTo ||
+            this@isCurve is SmoothQuadToRelative ||
+            this@isCurve is SmoothCubicTo ||
+            this@isCurve is SmoothCubicToRelative
+        )
+    }
+
+    return this is QuadTo ||
+            this is QuadToRelative ||
+            this is CubicTo ||
+            this is CubicToRelative ||
+            this is SmoothQuadTo ||
+            this is SmoothQuadToRelative ||
+            this is SmoothCubicTo ||
+            this is SmoothCubicToRelative
+}
+
+@OptIn(ExperimentalContracts::class)
+fun Command?.isSmooth(): Boolean {
+    contract {
+        returns(true) implies (
+            this@isSmooth is SmoothQuadTo ||
+            this@isSmooth is SmoothQuadToRelative ||
+            this@isSmooth is SmoothCubicTo ||
+            this@isSmooth is SmoothCubicToRelative
+        )
+    }
+
+    return this is SmoothQuadTo ||
+            this is SmoothQuadToRelative ||
+            this is SmoothCubicTo ||
+            this is SmoothCubicToRelative
+}
+
+
+@OptIn(ExperimentalContracts::class)
+fun Command?.isMove(): Boolean {
+    contract {
+        returns(true) implies (this@isMove is MoveTo || this@isMove is MoveToRelative)
+    }
+
+    return this is MoveTo || this is MoveToRelative
+}
+
+@OptIn(ExperimentalContracts::class)
+fun Command?.isArc(): Boolean {
+    contract {
+        returns(true) implies (this@isArc is ArcTo || this@isArc is ArcToRelative)
+    }
+
+    return this is ArcTo || this is ArcToRelative
+}
+
+@OptIn(ExperimentalContracts::class)
+fun Command?.isClose(): Boolean {
+    contract {
+        returns(true) implies (this@isClose is Close)
+    }
+
+    return this is Close
+}
 
 private fun bool(value: Boolean) = if (value) '1' else '0'
 
