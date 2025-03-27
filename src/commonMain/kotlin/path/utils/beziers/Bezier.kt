@@ -242,15 +242,15 @@ open class Bezier(val points: List<Vec2>) : Cloneable {
 
     fun antiSplit(other: Bezier): Pair<Double, Bezier>? {
         /**
-         *     S
-         *       *               M = S + t(E - S)
-         *         M             t = (M - S) / (E - S)
+         *     A
+         *       *               R = A + t(B - A)
+         *         R             t = (R - A) / (B - A)
          *           *
-         *             E
+         *             B
          * */
-        fun splitParam(s: Vec2, m: Vec2, e: Vec2): Double? {
-            val tx = (s.x - m.x) / (s.x - e.x)
-            val ty = (s.y - m.y) / (s.y - e.y)
+        fun inverseLerp(a: Vec2, result: Vec2, b: Vec2): Double? {
+            val tx = (a.x - result.x) / (a.x - b.x)
+            val ty = (a.y - result.y) / (a.y - b.y)
             return when {
                 tx.isNaN() && ty.isNaN() -> return null
                 tx.isNaN() -> ty
@@ -262,7 +262,7 @@ open class Bezier(val points: List<Vec2>) : Cloneable {
 
         if (order == other.order) {
             var s = points[count - 2]; val e = other.points[1]
-            val t = splitParam(s, end, e) ?: return null
+            val t = inverseLerp(s, end, e) ?: return null
 
             val newPoints = points.toMutableList()
             for (i in 0 until order) {
