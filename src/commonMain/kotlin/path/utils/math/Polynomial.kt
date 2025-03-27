@@ -73,10 +73,10 @@ class Polynomial(val coefficients: List<Double>) {
                     }
                 }
                 val x = when (val v = n - i) {
-                        0 -> ""
-                        1 -> "x"
-                        else -> "x" + v.toString().toPow()
-                    }
+                    0 -> ""
+                    1 -> "x"
+                    else -> "x" + v.toString().toPow()
+                }
                 val minus = sign == -1.0
 
                 result += when {
@@ -220,6 +220,18 @@ class Polynomial(val coefficients: List<Double>) {
         if (other !is Polynomial) false else simplify().coefficients == other.simplify().coefficients
 
     override fun hashCode() = simplify().coefficients.hashCode()
+
+    fun toBezierControls(): List<Double> {
+        var list = coefficients.asReversed().mapIndexed { i, c -> c / binomial(n, i) }
+        val controls = mutableListOf<Double>()
+        while (list.size != 1) {
+            controls += list.first()
+            list = list.zipWithNext { a, b -> a + b }
+        }
+        controls += list.first()
+
+        return controls
+    }
 }
 
 fun List<Polynomial>.sum() = reduceOrNull { a, b -> a + b } ?: Zero
