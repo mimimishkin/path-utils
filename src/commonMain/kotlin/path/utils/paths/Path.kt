@@ -58,7 +58,7 @@ fun Path.validate(): Path {
 
     iteratePath { command, _, _, move ->
         val last = path.lastOrNull()
-        if ((last == null || last.isClose) && !command.isMove)
+        if ((last == null || last.isClose()) && !command.isMove())
             path.moveTo(move)
 
         if (last == null && command is MoveToRelative) { // first moveTo is absolute

@@ -22,7 +22,7 @@ fun Path.minify(): Path {
     fun doAppend(move: Vec2) {
         val (from, command) = current!!.representAsLine().toCommand()
         val previous = path.lastOrNull()
-        val lastCurve = previous.isCurve && !previous.isArc
+        val lastCurve = previous.isCurve() && !previous.isArc()
         val minified = command.minify(from, anchor.takeIf { lastCurve }, move)
 
         if (minified != null) {
@@ -40,9 +40,9 @@ fun Path.minify(): Path {
         }
 
         when {
-            c.isMove -> doAppend(null)
+            c.isMove() -> doAppend(null)
 
-            c.isArc -> {
+            c.isArc() -> {
                 val minified = c.minify(from.orZero(), null, move.orZero())
                 if (minified != null) {
                     doAppend(null)
