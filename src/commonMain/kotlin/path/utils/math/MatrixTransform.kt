@@ -35,11 +35,20 @@ object Transforms {
         0.0, 0.0, 1.0,
     )
 
-    fun scale(sx: Double, sy: Double = sx) = matrix(
-        sx,  0.0, 0.0,
-        0.0, sy,  0.0,
-        0.0, 0.0, 1.0,
-    )
+    fun scale(sx: Double = 1.0, sy: Double = sx, cx: Double = 0.0, cy: Double = 0.0): MatrixTransform {
+        val scale = matrix(
+            sx, 0.0, 0.0,
+            0.0, sy, 0.0,
+            0.0, 0.0, 1.0,
+        )
+
+        if (cx != 0.0 || cy != 0.0) {
+            scale.preTranslate(-cx, -cy)
+            scale.translate(cx, cy)
+        }
+
+        return scale
+    }
 
     fun shear(shx: Double, shy: Double) = matrix(
         1.0, shx, 0.0,
