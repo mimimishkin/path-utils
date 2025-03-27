@@ -141,7 +141,7 @@ fun curve(
         lastDY = dy
     }
 
-    fun doMiddle(t: Double) {
+    fun process(t: Double) {
         val (x, y) = xy(t)
         val (dx, dy) = dxy(t)
 
@@ -171,11 +171,11 @@ fun curve(
     val max = interval.endInclusive
     while (true) {
         t = next(t)
-        if (t > max) {
-            doMiddle(max)
+        if (t >= max) {
+            process(max)
             break
         } else {
-            doMiddle(t)
+            process(t)
         }
     }
 
@@ -187,13 +187,9 @@ fun curve(
     y: Polynomial,
     interval: DoubleRange,
     next: (t: Double) -> Double
-): Path {
-    val dx = x.derivative
-    val dy = y.derivative
-    return curve(
-        xy = { Vec2(x.eval(it), y.eval(it)) },
-        dxy = { Vec2(dx.eval(it), dy.eval(it)) },
-        interval = interval,
-        next = next
-    )
-}
+): Path = curve(
+    xy = { Vec2(x.eval(it), y.eval(it)) },
+    dxy = { Vec2(x.derivative.eval(it), y.derivative.eval(it)) },
+    interval = interval,
+    next = next
+)
