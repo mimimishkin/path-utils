@@ -610,26 +610,34 @@ fun Command?.isClose(): Boolean {
 
 private fun bool(value: Boolean) = if (value) '1' else '0'
 
+private var format = Pair(Double.NaN, DecimalFormat.getInstance())
+private fun num(value: Double): String? {
+    if (Tolerance != format.first)
+        format = Pair(Tolerance, DecimalFormat("0." + "#".repeat(-log10(Tolerance).toInt()), DecimalFormatSymbols.getInstance(Locale.UK)))
+
+    return format.second.format(value)
+}
+
 fun Command.toSvg() = when (this) {
-    is ArcTo -> "A $rx $ry $xAxisRotation ${bool(largeArcFlag)} ${bool(sweepFlag)} $x $y"
-    is ArcToRelative -> "a $rx $ry $xAxisRotation ${bool(largeArcFlag)} ${bool(sweepFlag)} $dx $dy"
+    is ArcTo -> "A ${num(rx)} ${num(ry)} ${num(xAxisRotation)} ${bool(largeArcFlag)} ${bool(sweepFlag)} ${num(x)} ${num(y)}"
+    is ArcToRelative -> "a ${num(rx)} ${num(ry)} ${num(xAxisRotation)} ${bool(largeArcFlag)} ${bool(sweepFlag)} ${num(dx)} ${num(dy)}"
     is Close -> "Z"
-    is CubicTo -> "C $x1 $y1 $x2 $y2 $x $y"
-    is CubicToRelative -> "c $dx1 $dy1 $dx2 $dy2 $dx $dy"
-    is HorizontalLineTo -> "H $x"
-    is HorizontalLineToRelative -> "h $dx"
-    is LineTo -> "L $x $y"
-    is LineToRelative -> "l $dx $dy"
-    is MoveTo -> "M $x $y"
-    is MoveToRelative -> "m $dx $dy"
-    is QuadTo -> "Q $x1 $y1 $x $y"
-    is QuadToRelative -> "q $dx1 $dy1 $dx $dy"
-    is SmoothCubicTo -> "S $x2 $y2 $x $y"
-    is SmoothCubicToRelative -> "s $dx2 $dy2 $dx $dy"
-    is SmoothQuadTo -> "T $x $y"
-    is SmoothQuadToRelative -> "t $dx $dy"
-    is VerticalLineTo -> "V $y"
-    is VerticalLineToRelative -> "v $dy"
+    is CubicTo -> "C ${num(x1)} ${num(y1)} ${num(x2)} ${num(y2)} ${num(x)} ${num(y)}"
+    is CubicToRelative -> "c ${num(dx1)} ${num(dy1)} ${num(dx2)} ${num(dy2)} ${num(dx)} ${num(dy)}"
+    is HorizontalLineTo -> "H ${num(x)}"
+    is HorizontalLineToRelative -> "h ${num(dx)}"
+    is LineTo -> "L ${num(x)} ${num(y)}"
+    is LineToRelative -> "l ${num(dx)} ${num(dy)}"
+    is MoveTo -> "M ${num(x)} ${num(y)}"
+    is MoveToRelative -> "m ${num(dx)} ${num(dy)}"
+    is QuadTo -> "Q ${num(x1)} ${num(y1)} ${num(x)} ${num(y)}"
+    is QuadToRelative -> "q ${num(dx1)} ${num(dy1)} ${num(dx)} ${num(dy)}"
+    is SmoothCubicTo -> "S ${num(x2)} ${num(y2)} ${num(x)} ${num(y)}"
+    is SmoothCubicToRelative -> "s ${num(dx2)} ${num(dy2)} ${num(dx)} ${num(dy)}"
+    is SmoothQuadTo -> "T ${num(x)} ${num(y)}"
+    is SmoothQuadToRelative -> "t ${num(dx)} ${num(dy)}"
+    is VerticalLineTo -> "V ${num(y)}"
+    is VerticalLineToRelative -> "v ${num(dy)}"
 }
 
 fun Command.lastPoint(
