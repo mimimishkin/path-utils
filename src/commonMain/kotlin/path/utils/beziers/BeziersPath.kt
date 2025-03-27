@@ -112,6 +112,25 @@ class BeziersPath(val beziers: List<Bezier>, val isCalm: Boolean = false) {
     fun contains(p: Vec2) = contains(p.x, p.y)
 
     fun isEmpty() = beziers.isEmpty()
+
+    val isSinglePath by lazy {
+        var wasFirstMove = false
+        iteratePath { _, isMove ->
+            if (isMove) {
+                if (wasFirstMove) return@lazy false
+                wasFirstMove = true
+            }
+        }
+        true
+    }
+
+    val isConvex by lazy {
+        val products = beziers.flatMap { it.points.subList(0, it.count - 1) }.zipWithNext().zipWithNext { (a1, a2), (b1, b2) ->
+            (a2 - a1) cross (b2 - b1) < 0
+        }
+
+        products.all { it } || products.none { it }
+    }
 }
 
 fun Command.toBezier(from: Vec2) = when(this) {
